@@ -4,9 +4,9 @@ Directory structure:
 	|
    	---->Direction (0 = L->R, 1 = R->L, 2 = Up->Down, 3 = Down->Up)
 		|
-		------>Speed (0=Slow,1=Medium,2=Fast)
+		------>Speed (0=1/5,1=2/5,2=3/5,3=4/5,4=4/5,5 = 5/6 ) From slowest to faster
 			|
-			------>Block -> contains: CSV files each file is a trial in that block
+			------>Block (we have 4 blocks now) -> contains: CSV files each file is a trial in that block (Total 2400 Trials).
       
       
 
@@ -45,4 +45,4 @@ redY0 -> End Line start y (without thickness)
 redY1 -> End Line end y (without thickness)
 
 
-Good luck! If there are any questions or problems: feel free to contact me via email on: Ibrahim.Elseoud@gmail.com 
+Good luck! If there are any questions or problems: feel free to contact me via email on: khaledabdelrahman334@gmail.com
