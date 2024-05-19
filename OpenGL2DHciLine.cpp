@@ -1,5 +1,7 @@
+#define _CRTDBG_MAP_ALLOC
 
 #include <stdio.h>
+#include <crtdbg.h>
 #include <iostream>
 #include <glut.h>
 #include <LineManager.h>
@@ -8,7 +10,7 @@
 using namespace std;
 using namespace std::chrono;
 
-char* gameModeText ="HCI mouse Speed Experiment";
+char* gameModeText = "HCI mouse Speed Experiment";
 string userId;
 char* userIdChar;
 string folderPath;
@@ -27,31 +29,32 @@ int middleScreenX = width / 2;
 bool mouseSet = false;
 
 //background
-float backRed=0;
-float backGreen=0;
-float backBlue=0.5;
+float backRed = 0;
+float backGreen = 0;
+float backBlue = 0.5;
 
-LineManager lineMang(0,width,height,40); //tolerence is 40 pixels, it's the line width
+LineManager lineMang(0, width, height, 40); //tolerence is 40 pixels, it's the line width
 FileWriter fileWriter;
 // Change the experiment parameters here in the sequence keeper constructor
-SequenceKeeper sequenceKeeper(4, 3, 300, 60, 30); //(directions,blocksPerSpeed,directionBreakTimeInSec,blockBreakTimeInSec,TrialsInBlock) //real params
+SequenceKeeper sequenceKeeper(4, 4, 300, 30, 30);//directions, blocksPerSpeed, directionBreakTimeInSec, blockBreakTimeInSec, TrialsInBlock) //real params
 //SequenceKeeper sequenceKeeper(4, 2, 10, 5, 2); //(directions,blocksPerSpeed,directionBreakTimeInSec,blockBreakTimeInSec,TrialsInBlock) //test params
 //SequenceKeeper sequenceKeeper(4, 1, 10, 5, 1); //(directions,blocksPerSpeed,directionBreakTimeInSec,blockBreakTimeInSec,TrialsInBlock) //test params
 
 milliseconds time() {
-	milliseconds ms = duration_cast< milliseconds >(
+	milliseconds ms = duration_cast<milliseconds>(
 		system_clock::now().time_since_epoch()
-		);
+	);
 	return ms;
 }
 
+
 void timer(int val)//timer animation function.
 {
-	if (--sequenceKeeper.breakTime<=0) {
+	if (--sequenceKeeper.breakTime <= 0) {
 		sequenceKeeper.endBreak();
 	}
 	else
-	glutTimerFunc(1000, timer, 0);
+		glutTimerFunc(1000, timer, 0);
 }
 void next() {
 	//controls execution flow and line manager
@@ -70,13 +73,13 @@ void mouseCollisions() {
 	timeQueue.push(time());
 	pointsQueue.push(currentPoint);
 
-	if (lineMang.redCollisionDetect(currentPoint)) {		
-		fileWriter.write(sequenceKeeper.trialIdx, sequenceKeeper.inBlockIdx,lineMang.orient,sequenceKeeper.speed, sequenceKeeper.blockIdx, pointsQueue, timeQueue, lineMang.greenLine, lineMang.redLine,height);
+	if (lineMang.redCollisionDetect(currentPoint)) {
+		fileWriter.write(sequenceKeeper.trialIdx, sequenceKeeper.inBlockIdx, lineMang.orient, sequenceKeeper.speed, sequenceKeeper.blockIdx, pointsQueue, timeQueue, lineMang.greenLine, lineMang.redLine, height, userId);
 		next();
 		mouseSet = false;
 	}
 }// TODO: could display number of iterations in current block infront but could possibly cause user to be hasty and restless so better not. 
-void textOutput(int x, int y, float r, float g, float b, char *string)
+void textOutput(int x, int y, float r, float g, float b, char* string)
 {
 	glColor3f(r, g, b);
 	glRasterPos2f(x, y);
@@ -86,7 +89,7 @@ void textOutput(int x, int y, float r, float g, float b, char *string)
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, string[i]);
 	}
 }
-void textOutputBig(int x, int y, float r, float g, float b, char *string)
+void textOutputBig(int x, int y, float r, float g, float b, char* string)
 {
 	glColor3f(r, g, b);
 	glRasterPos2f(x, y);
@@ -97,7 +100,7 @@ void textOutputBig(int x, int y, float r, float g, float b, char *string)
 	}
 }
 
-void timerOutput(int passedTimer, int x, int y, char *word, float r, float g, float b)
+void timerOutput(int passedTimer, int x, int y, char* word, float r, float g, float b)
 {
 	if (passedTimer <= 0) {
 		textOutputBig(x, y, 1, 0, 0, "TIME COMPLETE!");
@@ -108,7 +111,7 @@ void timerOutput(int passedTimer, int x, int y, char *word, float r, float g, fl
 	glColor3f(r, g, b);
 	glRasterPos2f(x, y);
 	int len = 0;
-	for (; tempTime>0; len++) {
+	for (; tempTime > 0; len++) {
 		string[len] = 48 + (tempTime % 10);
 		tempTime /= 10;
 	}
@@ -121,16 +124,21 @@ void timerOutput(int passedTimer, int x, int y, char *word, float r, float g, fl
 	}
 	//glFlush();
 }
-void speedOutput(short passedSpeed,float r, float g, float b)
+void speedOutput(short passedSpeed, float r, float g, float b)
 {
 	string s;
 	glColor3f(r, g, b);
 	glRasterPos2f(width / 2, height - 25);
 	switch (passedSpeed) {
-	case 0:s="Speed: Slow"; break;
-	case 1:s = "Speed: Medium"; break;
-	case 2:s = "Speed: Fast"; break;
-	}	
+	case 0:s = "Speed: 1/5"; break;
+	case 1:s = "Speed: 2/5"; break;
+	case 2:s = "Speed: 3/5"; break;
+	case 3:s = "Speed: 4/5"; break;
+	case 4:s = "Speed: 5/5"; break;
+	//case 5:s = "Speed: 6/6"; break;
+		//case 5:s = "Speed: 5/5"; break;
+		//case 6:s = "Speed: 6/6"; break;
+	}
 	int len = s.length();
 	for (int i = 0; i < len; i++) {
 		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, s[i]);
@@ -148,7 +156,7 @@ void generateLines() {
 	glVertex3f(lineMang.greenLine[2], lineMang.greenLine[3], 0.0f);
 	glEnd();
 	glPopMatrix();
-	
+
 	//red line
 	glPushMatrix();
 	glBegin(GL_QUADS);
@@ -179,18 +187,18 @@ void Display() {
 		mouseCollisions();
 	}
 	else timerOutput(sequenceKeeper.breakTime, middleScreenX, middleScreenY, "Break Time Left: ", 1, 1, 1);
-	
+
 	glFlush();
 
 }
 void key(unsigned char k, int x, int y)//keyboard function, takes 3 parameters
-									   // k is the key pressed from the keyboard
-									   // x and y are mouse postion when the key was pressed.
+// k is the key pressed from the keyboard
+// x and y are mouse postion when the key was pressed.
 {
 	switch (k) {
-	case ('q') : exit(1); break; //exit experiment
-	case('s') : { sequenceKeeper.breakTime = 0; }; break; //skip break and continue experiment
-	case('p') : {  //print to cmd
+	case ('q'): exit(1); break; //exit experiment
+	case('s'): { sequenceKeeper.breakTime = 0; }; break; //skip break and continue experiment
+	case('p'): {  //print to cmd
 		cout << "Mouse X:" << currentPoint.x; //mouseX;
 		cout << "MouseY:" << currentPoint.y;//mouseY;
 
@@ -198,7 +206,7 @@ void key(unsigned char k, int x, int y)//keyboard function, takes 3 parameters
 		cout << "\b Red X:" << lineMang.redLine[0] << " Y:" << lineMang.redLine[1];
 		cout << endl;
 
-				}; break;
+	}; break;
 
 	}
 
@@ -208,18 +216,21 @@ void Anim() {
 	glutPostRedisplay();
 }
 void main(int argc, char** argr) {
+	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	_CrtDumpMemoryLeaks();
+
 	lineMang.setOrientation(sequenceKeeper.orientation);
 	cout << "Please input the UserID first \n";
 	getline(cin, userId);
-	cout <<"Current user: "<< userId;
+	cout << "Current user: " << userId;
 	userIdChar = &userId[0u];
 	fileWriter.setBasePath(string("outputs\\" + userId));
-	
+
 	glutInit(&argc, argr);
-	
+
 	glutInitWindowSize(width, height);
 	glutInitWindowPosition(150, 150);
-	
+
 	glutCreateWindow("Line Test");
 	glutDisplayFunc(Display);
 	glutKeyboardFunc(key);
