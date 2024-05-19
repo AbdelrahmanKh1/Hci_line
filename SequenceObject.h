@@ -11,16 +11,16 @@ public:
 
 		this->orientation = orientation;
 		srand(time(0));  // initialize seed "randomly" for true random
-		short speedArr[] = { 0,1,2 };
+		short speedArr[] = { 0,1,2,3 };
 
-		for (short i = 0; i<3; i++) { //shuffel speed array
-			short r = rand() % 3;  // generate a random position
-			short temp = speedArr[i]; 
+		for (short i = 0; i < 4; i++) { //shuffel speed array
+			short r = rand() % 4;  // generate a random position
+			short temp = speedArr[i];
 			speedArr[i] = speedArr[r];
 			speedArr[r] = temp;
 		}
 
-		for (short i = 0; i < 3; i++) {
+		for (short i = 0; i < 4; i++) {
 			speed.push(speedArr[i]);
 		}
 
